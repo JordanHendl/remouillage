@@ -1,44 +1,42 @@
 use dashi::utils::*;
 use dashi::*;
 use serde::{Deserialize, Serialize};
-use std::fs;
+use std::{collections::HashMap, fs};
 extern crate unzip3;
 use self::unzip3::Unzip3;
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct CanvasAttachment {
+    pub name: String,
+    pub format: Format,
+    pub samples: SampleCount,
+    pub load_op: LoadOp,
+    pub store_op: StoreOp,
+    pub stencil_load_op: LoadOp,
+    pub stencil_store_op: StoreOp,
+    pub clear_color: [f32; 4],
+}
+
+#[derive(Clone)]
+pub struct CanvasAttachmentDetail {
+    pub img: Handle<Image>,
+    pub view: Handle<ImageView>,
+    pub info: CanvasAttachment,
+}
+
 #[derive(Serialize, Deserialize)]
-struct CanvasAttachment {
-    name: String,
-    format: Format,
-    samples: SampleCount,
-    load_op: LoadOp,
-    store_op: StoreOp,
-    stencil_load_op: LoadOp,
-    stencil_store_op: StoreOp,
-    clear_color: [f32; 4],
-}
-
-struct Attachment {
-    img: Handle<Image>,
-    view: Handle<ImageView>,
-    info: CanvasAttachment,
-}
-
-#[derive(Serialize, Deserialize)]
-struct CanvasJSONInfo {
-    name: String,
-    viewport: Viewport,
-    color_attachments: Vec<CanvasAttachment>,
-    depth_stencil: Option<CanvasAttachment>,
-}
-
-pub enum StaticCanvasProfile {
-    SIMPLE, // One color & depth attachment.
+pub struct CanvasCreateInfo {
+    pub name: String,
+    pub viewport: Viewport,
+    pub color_attachments: Vec<CanvasAttachment>,
+    pub depth_stencil: Option<CanvasAttachment>,
 }
 
 #[allow(dead_code)]
 pub struct Canvas {
     name: String,
     viewport: Viewport,
+    attach_map: HashMap<String, CanvasAttachmentDetail>,
     color_images: Vec<Handle<Image>>,
     color_views: Vec<Handle<ImageView>>,
     depth: Option<Handle<Image>>,
@@ -61,10 +59,12 @@ impl Canvas {
         self.color_views[idx as usize]
     }
 
-    pub fn from_json(ctx: &mut Context, path: &str) -> Self {
-        let json_data = fs::read_to_string(path).expect("Failed to read JSON for Canvas!");
-        let info: CanvasJSONInfo =
-            serde_json::from_str(&json_data).expect("Failed to read Canvas from JSON!");
+    pub fn color_attachment_by_name(&self, name: &str) -> Option<&CanvasAttachmentDetail> {
+        return self.attach_map.get(name);
+    }
+
+    pub fn new(ctx: &mut Context, info: CanvasCreateInfo) -> Self {
+        let mut map = HashMap::new();
 
         // Fn to convert CanvasAttachment -> tuple (img, view, dashi attachment)
         let mut attach_to_tuple = |a: CanvasAttachment| {
@@ -96,6 +96,12 @@ impl Canvas {
                 stencil_store_op: a.stencil_store_op,
                 clear_color: a.clear_color,
             };
+            
+            map.insert(a.name.clone(), CanvasAttachmentDetail {
+                img,
+                view,
+                info: a.clone(),
+            });
 
             return (img, view, attachment);
         };
@@ -124,14 +130,22 @@ impl Canvas {
                 depth_stencil_attachment: depth_attach.as_ref(),
             })
             .unwrap();
-
+        
         Self {
             viewport: info.viewport,
             color_images: imgs,
             depth,
             render_pass,
+            attach_map: map,
             name: info.name,
             color_views: views,
         }
+    }
+    pub fn from_json(ctx: &mut Context, path: &str) -> Self {
+        let json_data = fs::read_to_string(path).expect("Failed to read JSON for Canvas!");
+        let info: CanvasCreateInfo =
+            serde_json::from_str(&json_data).expect("Failed to read Canvas from JSON!");
+
+        return Canvas::new(ctx, info);
     }
 }

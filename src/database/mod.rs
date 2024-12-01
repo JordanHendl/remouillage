@@ -8,6 +8,8 @@ pub mod load_funcs;
 pub use load_funcs::*;
 mod images;
 use images::*;
+mod models;
+use models::*;
 pub mod font;
 pub use font::*;
 
