@@ -1,0 +1,24 @@
+{
+  "particles": [
+    {
+      "name": "a",
+      "id": 0,
+      "image_path": "particle_sheet.png",
+      "animations": [
+        {
+          "name": "test",
+          "id": 0,
+          "time_per_frame_ms": 4.0,
+          "sprites": [
+            {
+              "x": 0,
+              "y": 0,
+              "w": 32,
+              "h": 32
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

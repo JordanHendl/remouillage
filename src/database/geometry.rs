@@ -2,6 +2,7 @@ use glam::*;
 pub type Index = u32;
 use glam::{Vec2, Vec3};
 use gltf::Gltf;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -14,7 +15,7 @@ pub struct Vertex {
     pub bone_weights: [f32; 4],
 }
 
-#[derive(Eq, PartialEq, Hash, Clone, Debug)]
+#[derive(Eq, PartialEq, Hash, Clone, Debug, Serialize, Deserialize)]
 pub enum TextureType {
     Diffuse,
     Specular,
@@ -25,8 +26,9 @@ pub enum TextureType {
     Albedo,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
+    pub name: String,
     pub textures: HashMap<TextureType, String>,
 }
 
@@ -53,6 +55,9 @@ pub fn load_gltf_model<P: AsRef<Path>>(path: P) -> Option<Model> {
         for primitive in mesh.primitives() {
             let reader = primitive.reader(|buffer| Some(&buffers[buffer.index()]));
 
+            let mut bone_ids: Vec<[u16; 4]> = Vec::new();
+            let mut bone_weights: Vec<[f32; 4]> = Vec::new();
+
             // Extract Positions
             let positions: Vec<[f32; 3]> = reader.read_positions()?.collect();
 
@@ -63,9 +68,17 @@ pub fn load_gltf_model<P: AsRef<Path>>(path: P) -> Option<Model> {
             let tex_coords: Vec<[f32; 2]> = reader.read_tex_coords(0)?.into_f32().collect();
 
             // Extract Bone Weights
-            let bone_ids: Vec<[u16; 4]> = reader.read_joints(0)?.into_u16().collect();
+            if let Some(joints) = reader.read_joints(0) {
+                bone_ids = joints.into_u16().collect();
+            } else {
+                bone_ids.resize(positions.len(), [0, 0, 0, 0]);
+            }
 
-            let bone_weights: Vec<[f32; 4]> = reader.read_weights(0)?.into_f32().collect();
+            if let Some(weights) = reader.read_weights(0) {
+                bone_weights = weights.into_f32().collect();
+            } else {
+                bone_weights.resize(positions.len(), [0.0, 0.0, 0.0, 0.0]);
+            }
 
             // Collect vertex data
             for i in 0..positions.len() {
@@ -87,10 +100,14 @@ pub fn load_gltf_model<P: AsRef<Path>>(path: P) -> Option<Model> {
             if let Some(indices_data) = reader.read_indices() {
                 indices.extend(indices_data.into_u32());
             }
-
+            
+            let mut mat_name = "Unknown".to_string();
             // Extract Material Information
             let mat = primitive.material();
             {
+                if let Some(name) = mat.name() {
+                    mat_name = name.to_string();
+                }
                 let mut textures = HashMap::new();
 
                 if let Some(info) = mat.pbr_metallic_roughness().base_color_texture() {
@@ -117,7 +134,7 @@ pub fn load_gltf_model<P: AsRef<Path>>(path: P) -> Option<Model> {
                     }
                 }
 
-                material = Some(Material { textures });
+                material = Some(Material { name: mat_name, textures });
             }
         }
 

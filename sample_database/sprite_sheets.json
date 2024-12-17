@@ -1,0 +1,80 @@
+{
+  "sprite_sheets": [
+    {
+      "name": "character",
+      "image_path": "spritesheets/sheet.png",
+      "sprites": [
+        {
+          "name": "idle",
+          "id": 0,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 64
+          }
+        },
+        {
+          "name": "walk1",
+          "id": 1,
+          "bounds": {
+            "x": 64,
+            "y": 0,
+            "w": 64,
+            "h": 64
+          }
+        },
+        {
+          "name": "walk2",
+          "id": 2,
+          "bounds": {
+            "x": 64,
+            "y": 64,
+            "w": 64,
+            "h": 64
+          }
+        },
+        {
+          "name": "walk3",
+          "id": 3,
+          "bounds": {
+            "x": 128,
+            "y": 64,
+            "w": 64,
+            "h": 64
+          }
+        },
+        {
+          "name": "walk4",
+          "id": 4,
+          "bounds": {
+            "x": 192,
+            "y": 64,
+            "w": 64,
+            "h": 64
+          }
+        },
+        {
+          "name": "walk5",
+          "id": 5,
+          "bounds": {
+            "x": 256,
+            "y": 64,
+            "w": 64,
+            "h": 64
+          }
+        },
+        {
+          "name": "walk6",
+          "id": 6,
+          "bounds": {
+            "x": 320,
+            "y": 64,
+            "w": 64,
+            "h": 64
+          }
+        }
+      ]
+    }
+  ]
+}

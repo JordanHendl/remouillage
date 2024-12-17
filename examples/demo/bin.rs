@@ -1,5 +1,7 @@
 use remouillage::database::*;
+use remouillage::database::geometry::*;
 use remouillage::canvas::*;
+use remouillage::d3::*;
 use remouillage::utils::timer::*;
 use std::env;
 fn main() {
@@ -11,6 +13,9 @@ fn main() {
 
     let mut ctx = dashi::Context::new(&Default::default()).unwrap();
     let _timer = Timer::new();
-    let _database = Database::new(&args[1]).unwrap();
-    let _canvas = Canvas::from_json(&mut ctx, &format!("{}/canvas.json", &args[1]));
+    let database = Database::new(&args[1]).unwrap();
+    let canvas = Canvas::from_json(&mut ctx, &format!("{}/canvas.json", &args[1]));
+
+    let model = load_gltf_model("model.gltf");
+    assert!(model.is_some());
 }

@@ -1,0 +1,43 @@
+{
+  "render_pass": {
+    "size": [1280, 1024],
+    "subpasses": [ {
+        "name": "main-pass",
+        "attachments": [ {
+            "name": "color",
+            "type": "Color"
+          }, {
+            "name": "depth",
+            "type": "Depth"
+          }
+        ]
+      }
+    ]
+  },
+
+  "render_mask": {
+    "standard": 0,
+    "shadow": 1
+  },
+  
+  "nodes": [ {
+      "name": "base_pass",
+      "pipeline": {
+        "graphics": "stdrender"
+      },
+      "subpass": "main-pass",
+      "render_masks": ["standard", "shadow"]
+    }, {
+      "name": "base-compute",
+      "pipeline": {
+        "compute": "stdcompute"
+      },
+      "render_masks": ["standard", "shadow"]
+    }
+  ],
+
+  "execution_order": [
+    "base_pass",
+    "OUTPUT"
+  ]
+}

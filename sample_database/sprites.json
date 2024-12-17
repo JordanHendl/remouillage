@@ -1,0 +1,8 @@
+{
+  "sprites": [
+    {
+      "name": "name",
+      "image_path": "sprites/picture.png"
+    }
+  ]
+}

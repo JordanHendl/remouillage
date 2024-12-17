@@ -2,7 +2,8 @@ use crate::utils::texture::*;
 use dashi::utils::Handle;
 use dashi::*;
 
-use super::geometry;
+use crate::database::*;
+
 pub struct MeshMaterialInfo {
     pub diffuse: Option<Texture>,
     pub specular: Option<Texture>,
@@ -18,10 +19,13 @@ impl MeshMaterialInfo {
     }
 }
 pub struct Material {
+    pub name: String,
+    pub info: MeshMaterialInfo,
     pub bind_group: BindGroup,
 }
 
 pub struct Mesh {
+    pub name: String,
     pub vertices: Handle<Buffer>,
     pub indices: Handle<Buffer>,
     pub material: Material,

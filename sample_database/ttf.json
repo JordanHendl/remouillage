@@ -1,0 +1,10 @@
+{
+  "fonts": [
+    {
+      "name": "font",
+      "path": "fonts/basic.ttf",
+      "size": 80.0
+    }
+  ]
+
+}
