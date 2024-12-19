@@ -75,6 +75,7 @@ impl Canvas {
                     format: a.format,
                     mip_levels: 1,
                     initial_data: None,
+                    ..Default::default()
                 })
                 .unwrap();
 
